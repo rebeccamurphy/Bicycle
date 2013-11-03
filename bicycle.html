@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - loaders - OBJ MTL loader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #333;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+			}
+			#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+		</style>
+	</head>
+
+	<body>
+
+		<script src="js/Three.js"></script>
+
+		<script src="js/loaders/MTLLoader.js"></script>
+		<script src="js/loaders/OBJLoader.js"></script>
+		<script src="js/loaders/OBJMTLLoader.js"></script>
+
+		<script src="js/Detector.js"></script>
+		<script src="js/stats.min.js"></script>
+
+		<script>
+
+			var container, stats;
+
+			var camera, scene, renderer;
+			var bicycle, frame, sfork, wheel, wheel2;
+
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+
+			init();
+			animate();
+
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.z = 100;
+
+				// scene
+
+				scene = new THREE.Scene();
+
+				var ambient = new THREE.AmbientLight( 0x101010 ); //hex numbers for light color
+				scene.add( ambient );
+
+				var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+				directionalLight.position.set( 0.5, 2, 1 ).normalize();
+				scene.add( directionalLight );
+
+				// model
+                bicycle = new THREE.Object3D();
+
+				var loader = new THREE.OBJMTLLoader();
+				loader.load( 'objects/frame.obj', 'objects/frame.mtl', function ( object ) {
+    				object.scale.x = 20;
+    				object.scale.y = 20;
+    				object.scale.z = 20;
+                    frame = object;
+					bicycle.add( frame );
+					
+                } );
+					loader.load( 'objects/sfork.obj', 'objects/sfork.mtl', function ( object ) {
+    				object.scale.x = 20;
+    				object.scale.y = 20;
+    				object.scale.z = 20;
+					object.translateX(65);
+					object.translateY(30);
+					object.rotation.z +=.4;
+					sfork = object;
+					
+					bicycle.add( sfork );
+					
+                } );
+				loader.load( 'objects/wheel.obj', 'objects/wheel.mtl', function ( object ) {
+    				object.scale.x = 20;
+    				object.scale.y = 20;
+    				object.scale.z = 20;
+					object.translateX(-2);
+                    wheel = object;
+					bicycle.add( wheel );
+					
+                } );
+				
+				loader.load( 'objects/wheel.obj', 'objects/wheel.mtl', function ( object ) {
+    				object.scale.x = 20;
+    				object.scale.y = 20;
+    				object.scale.z = 20;
+					object.translateX(82);
+					object.translateY(3);
+					wheel2 = object;
+					
+					bicycle.add( wheel2 );
+					//sfork.add(wheel2);
+					
+                } );
+			
+                /*
+                    TODO Add more bicycle parts and connect them up to the scene
+                    Note: Be sure to apply whatever transformations are appropriate
+                */
+
+				scene.add( bicycle );
+				//scene.add(sfork);
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'keyup', onKeyUp, false );
+				document.addEventListener( 'keydown', onKeyDown, false );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+            function cloneObj ( obj ) {
+                var i, cpy = new THREE.Object3D();
+                for (var i in obj.children) {
+                    cpy.add(
+                        new THREE.Mesh(obj.children[i].geometry)
+                    );
+                }
+                return cpy;
+            }
+
+            function cloneObjMtl ( objmtl ) {
+                var i, cpy = new THREE.Object3D();
+                for (var i in objmtl.children) {
+                    cpy.add(
+                        new THREE.Mesh(objmtl.children[i].geometry,
+                        objmtl.children[i].material)
+                    );
+                }
+                return cpy;
+            }
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function onKeyUp( event ) {
+                /*
+                    Implement keyboard controls for pedaling (i.e., spinning the wheels)
+                */
+				
+			}
+
+			function onKeyDown( event ) {
+                /*
+                    Implement keyboard controls for steering (i.e. turning the handlebars)
+                */
+				//sfork.rotation.y+=.1;
+				//wheel2.rotation.y+=.1;
+				bicycle.translateX(1);
+				wheel.rotation.z-=1;
+				wheel2.rotation.z-=1;
+				
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) / 2;
+				mouseY = ( event.clientY - windowHalfY ) / 2;
+
+			}
+
+			//
+
+			function animate() {
+				requestAnimationFrame( animate );
+                /*
+                    TODO Perform updates for animation purposes
+                */
+				render();
+
+			}
+
+			function render() {
+
+				camera.position.x += ( mouseX - camera.position.x ) * .05;
+				camera.position.y += ( - mouseY - camera.position.y ) * .05;
+
+				camera.lookAt( scene.position );
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
