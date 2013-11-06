@@ -74,6 +74,7 @@
 
 				// model
                 bicycle = new THREE.Object3D();
+                front = new THREE.Object3D();
 
 				var loader = new THREE.OBJMTLLoader();
 				loader.load( 'objects/frame.obj', 'objects/frame.mtl', function ( object ) {
@@ -88,12 +89,12 @@
     				object.scale.x = 20;
     				object.scale.y = 20;
     				object.scale.z = 20;
-					object.translateX(65);
-					object.translateY(30);
+    				object.position.x = 65;
+    				object.position.y = 30;
 					object.rotation.z +=.4;
 					sfork = object;
-					
-					bicycle.add( sfork );
+					front.add(sfork);
+					//bicycle.add( sfork );
 					
                 } );
 				loader.load( 'objects/wheel.obj', 'objects/wheel.mtl', function ( object ) {
@@ -110,12 +111,15 @@
     				object.scale.x = 20;
     				object.scale.y = 20;
     				object.scale.z = 20;
-					object.translateX(82);
-					object.translateY(3);
+    				object.position.x = 82;
+    				object.position.y = 3;
+					//object.translateX(82);
+					//object.translateY(3);
 					wheel2 = object;
 					
-					bicycle.add( wheel2 );
+					//bicycle.add( wheel2 );
 					//sfork.add(wheel2);
+					front.add(wheel2);
 					
                 } );
 			
@@ -123,9 +127,9 @@
                     TODO Add more bicycle parts and connect them up to the scene
                     Note: Be sure to apply whatever transformations are appropriate
                 */
-
+               // bicycle.add(front);
 				scene.add( bicycle );
-				//scene.add(sfork);
+				scene.add(front);
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -187,10 +191,47 @@
                 */
 				//sfork.rotation.y+=.1;
 				//wheel2.rotation.y+=.1;
-				bicycle.translateX(1);
+				//bicycle.translateX(1);
+				switch (event.keyCode){
+				case 37: // left
+				//wheel2.rotation.y+=.1;
 				wheel.rotation.z-=1;
-				wheel2.rotation.z-=1;
-				
+				wheel2.rotation.z-=.1;
+				//sfork.rotation.y+=.1;
+				front.rotation.y+=.1;
+				//bicycle.translateX(1);
+				bicycle.rotation.y+=.1;
+				console.log(front.rotation.y);
+				console.log(bicycle.rotation.y);
+
+				break;
+				case 39:
+				front.rotation.y-=.1;
+				wheel.rotation.z-=1;
+				wheel2.rotation.z-=.1;
+				bicycle.rotation.y-=.1;
+				//bicycle.translateX(1);
+				break;
+				case 38:
+					bicycle.translateX(1);
+					front.translateX(1);
+
+					wheel.rotation.z-=1;
+					wheel2.rotation.z-=.1;
+				break;
+
+				case 40:
+
+					bicycle.translateX(-1);
+					front.translateX(-1);
+
+					wheel.rotation.z+=1;
+					wheel2.rotation.z+=.1;
+
+				break;
+
+
+				}
 			}
 
 			function onDocumentMouseMove( event ) {
